@@ -31,8 +31,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const LOGIN = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { authType } = req.query;
     try {
+        const { userData } = req.body;
         if (authType === "google") {
-            const { userData } = req.body;
             const user = yield user_1.User.findOne({
                 email: userData.email,
             });
@@ -51,7 +51,9 @@ const LOGIN = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     userId: userData.userId,
                 });
                 yield newUser.save();
-                return res.json(204).json({ msg: "User Logged In!", payload: newUser });
+                return res
+                    .status(200)
+                    .json({ msg: "User logged In!", payload: newUser });
             }
             catch (error) {
                 return res.status(401).json({ msg: "Missing Inputs" });

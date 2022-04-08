@@ -9,8 +9,8 @@ export const LOGIN = async (req: Request, res: Response) => {
   const { authType } = req.query;
 
   try {
+    const { userData }: { userData: IUser } = req.body;
     if (authType === "google") {
-      const { userData }: { userData: IUser } = req.body;
       const user: IUser | null = await User.findOne({
         email: userData.email,
       });
@@ -30,7 +30,9 @@ export const LOGIN = async (req: Request, res: Response) => {
           userId: userData.userId,
         });
         await newUser.save();
-        return res.json(204).json({ msg: "User Logged In!", payload: newUser });
+        return res
+          .status(200)
+          .json({ msg: "User logged In!", payload: newUser });
       } catch (error) {
         return res.status(401).json({ msg: "Missing Inputs" });
       }
@@ -51,7 +53,7 @@ export const LOGIN = async (req: Request, res: Response) => {
 
       user = user._doc;
       let { password, ...UserData } = user as IUser;
-     
+
       const accessToken = jwt.sign(UserData, process.env.ACCESS_SECRET, {
         expiresIn: "1h",
       });
