@@ -5,7 +5,7 @@ export interface IUser {
   authType: "google" | "custom";
   photoUrl: string;
   userId: string;
-  _doc?: any
+  _doc?: any;
 }
 
 export interface ICustomLoginBody {
@@ -20,4 +20,25 @@ export interface IRegisterBody {
   authType: "custom";
 }
 
+export interface IMemoryAuthor {
+  userId: string;
+  displayName: string;
+  photoUrl: string;
+  email: string;
+}
+export interface ICommentAuthor {
+  userId: string;
+  displayName: string;
+  photoUrl: string;
+  email: string;
+}
 
+export interface IMemory {  
+  author: IMemoryAuthor;
+  createdAt: Date;
+  tags: string[];
+  comments: ICommentAuthor[];
+  memoryPhotoUrl: string;
+  memoryTitle: string;
+  memoryMessage: string;
+}
