@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import indexRouter from "./routes/index";
 import mongoose from "mongoose";
 import cors from "cors";
+import "./firebaseInıt";
 
 dotenv.config();
 const port = process.env.PORT;

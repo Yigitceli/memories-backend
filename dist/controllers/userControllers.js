@@ -23,11 +23,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.REGISTER = exports.LOGIN = void 0;
+exports.REFRESH_TOKEN = exports.REGISTER = exports.LOGIN = void 0;
 const user_1 = require("../models/user");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const uid_1 = require("uid");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const axios_1 = __importDefault(require("axios"));
 const LOGIN = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { authType } = req.query;
     try {
@@ -40,7 +41,7 @@ const LOGIN = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 return res.status(200).json({ msg: "User Logged In!", payload: user });
             if (user && user.authType == "custom")
                 return res
-                    .status(401)
+                    .status(400)
                     .json({ msg: "Wrong login platform. This email is already in use" });
             try {
                 const newUser = new user_1.User({
@@ -56,7 +57,7 @@ const LOGIN = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     .json({ msg: "User logged In!", payload: newUser });
             }
             catch (error) {
-                return res.status(401).json({ msg: "Missing Inputs" });
+                return res.status(400).json({ msg: "Missing Inputs" });
             }
         }
         else {
@@ -66,10 +67,10 @@ const LOGIN = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 authType: "custom",
             });
             if (!user)
-                return res.status(401).json({ msg: "User does not exist!" });
+                return res.status(400).json({ msg: "User does not exist!" });
             const passwordCheck = yield bcrypt_1.default.compare(userData.password, user.password);
             if (!passwordCheck)
-                return res.status(401).json({ msg: "Wrong Password" });
+                return res.status(400).json({ msg: "Wrong Password" });
             user = user._doc;
             let _a = user, { password } = _a, UserData = __rest(_a, ["password"]);
             const accessToken = jsonwebtoken_1.default.sign(UserData, process.env.ACCESS_SECRET, {
@@ -115,3 +116,42 @@ const REGISTER = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.REGISTER = REGISTER;
+const REFRESH_TOKEN = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { refreshToken } = req.body;
+    const authType = req.headers.authtype;
+    const accessToken = req.headers.authorization;
+    if (!refreshToken)
+        return res.status(401).json({ msg: "Missing Token!" });
+    try {
+        if (authType == "google") {
+            try {
+                const { data } = yield axios_1.default.post(`https://securetoken.googleapis.com/v1/token?key=${process.env.FIREBASE_API_KEY}`, {
+                    grant_type: "refresh_token",
+                    refresh_token: refreshToken,
+                });
+                return res
+                    .status(200)
+                    .json({ msg: "Token refreshed!", payload: data.access_token });
+            }
+            catch (error) {
+                return res.status(401).json({ msg: "Token Expired!" });
+            }
+        }
+        else {
+            try {
+                const userData = jsonwebtoken_1.default.verify(refreshToken, process.env.REFRESH_SECRET);
+                const accessToken = jsonwebtoken_1.default.sign(userData, process.env.ACCESS_SECRET);
+                return res
+                    .status(200)
+                    .json({ msg: "Token refreshed!", payload: accessToken });
+            }
+            catch (error) {
+                return res.status(401).json({ msg: "Token Expired!" });
+            }
+        }
+    }
+    catch (error) {
+        return res.status(500).json({ msg: "Something gone wrong!" });
+    }
+});
+exports.REFRESH_TOKEN = REFRESH_TOKEN;

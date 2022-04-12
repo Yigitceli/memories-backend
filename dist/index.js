@@ -18,6 +18,7 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const index_1 = __importDefault(require("./routes/index"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const cors_1 = __importDefault(require("cors"));
+require("./firebaseIn\u0131t");
 dotenv_1.default.config();
 const port = process.env.PORT;
 const app = (0, express_1.default)();

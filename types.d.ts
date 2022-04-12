@@ -33,7 +33,7 @@ export interface ICommentAuthor {
   email: string;
 }
 
-export interface IMemory {  
+export interface IMemory {
   author: IMemoryAuthor;
   createdAt: Date;
   tags: string[];
@@ -41,4 +41,19 @@ export interface IMemory {
   memoryPhotoUrl: string;
   memoryTitle: string;
   memoryMessage: string;
+}
+
+export interface IMemoryPost {
+  tags: string[];
+  memoryPhotoUrl: string;
+  memoryTitle: string;
+  memoryMessage: string;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user: IUser;
+    }
+  }
 }

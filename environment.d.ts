@@ -6,6 +6,7 @@ declare global {
       PORT?: string;
       ACCESS_SECRET: string;
       REFRESH_SECRET: string;
+      FIREBASE_API_KEY: string;
     }
   }
 }
