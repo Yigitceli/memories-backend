@@ -26,18 +26,19 @@ export interface IMemoryAuthor {
   photoUrl: string;
   email: string;
 }
-export interface ICommentAuthor {
+export interface IComment {
   userId: string;
   displayName: string;
   photoUrl: string;
   email: string;
+  comment: string;
 }
 
 export interface IMemory {
   author: IMemoryAuthor;
-  createdAt: Date;
+  createdAt?: Date;
   tags: string[];
-  comments: ICommentAuthor[];
+  comments: IComment[];
   memoryPhotoUrl: string;
   memoryTitle: string;
   memoryMessage: string;

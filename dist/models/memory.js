@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const memorySchema = new mongoose_1.Schema({
     author: { required: true, type: Map },
-    createdAt: new Date(),
+    createdAt: { default: new Date(), type: Date },
     tags: Array,
     comments: Array,
     memoryPhotoUrl: String,

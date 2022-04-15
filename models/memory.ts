@@ -3,7 +3,7 @@ import { IMemory } from "../types";
 
 const memorySchema = new Schema<IMemory>({
   author: { required: true, type: Map },
-  createdAt: new Date(),
+  createdAt: { default: new Date(), type: Date },
   tags: Array,
   comments: Array,
   memoryPhotoUrl: String,
