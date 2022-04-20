@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.POST_MEMORY = void 0;
+exports.GET_MEMORIES = exports.POST_MEMORY = void 0;
 const memory_1 = __importDefault(require("../models/memory"));
 const POST_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
@@ -38,6 +38,7 @@ const POST_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             memoryPhotoUrl: memoryData.memoryPhotoUrl,
             memoryTitle: memoryData.memoryTitle,
             tags: memoryData.tags,
+            like: [],
         };
         const newMemory = new memory_1.default(MemoryTemplate);
         yield newMemory.save();
@@ -50,3 +51,17 @@ const POST_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.POST_MEMORY = POST_MEMORY;
+const GET_MEMORIES = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page } = req.query;
+    try {
+        const memories = yield memory_1.default.find()
+            .sort({ createdAt: -1 })
+            .skip(parseInt(page) * 10)
+            .limit(5);
+        return res.json({ msg: "Memories Fetched!", payload: memories });
+    }
+    catch (error) {
+        return res.status(500).json({ msg: "Something gone wrong!" });
+    }
+});
+exports.GET_MEMORIES = GET_MEMORIES;

@@ -30,17 +30,32 @@ export const POST_MEMORY = async (req: Request, res: Response) => {
     };
     const MemoryTemplate: IMemory = {
       author: MemoryAuthor,
-      comments: [],      
+      comments: [],
       memoryMessage: memoryData.memoryMessage,
       memoryPhotoUrl: memoryData.memoryPhotoUrl,
       memoryTitle: memoryData.memoryTitle,
       tags: memoryData.tags,
+      like: [],
     };
     const newMemory = new Memory<IMemory>(MemoryTemplate);
     await newMemory.save();
     return res
       .status(200)
       .json({ msg: "Memory has been created.", payload: newMemory });
+  } catch (error) {
+    return res.status(500).json({ msg: "Something gone wrong!" });
+  }
+};
+
+export const GET_MEMORIES = async (req: Request, res: Response) => {
+  const { page } = req.query;
+  try {
+    const memories: IMemory[] = await Memory.find()
+      .sort({ createdAt: -1 })
+      .skip(parseInt(page as string) * 10)
+      .limit(5);
+
+    return res.json({ msg: "Memories Fetched!", payload: memories });
   } catch (error) {
     return res.status(500).json({ msg: "Something gone wrong!" });
   }

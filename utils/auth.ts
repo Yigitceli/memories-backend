@@ -4,9 +4,9 @@ import { fireBaseAuth } from "../firebaseInıt";
 import { IUser } from "../types";
 
 export const AUTH = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+  try {    
     const authType = req.headers.authtype;
-    const accessToken = req.headers.authorization;   
+    const accessToken = req.headers.authorization;
     if (accessToken) {
       if (authType == "custom") {
         try {
@@ -35,7 +35,7 @@ export const AUTH = async (req: Request, res: Response, next: NextFunction) => {
           req.user = googleUser;
 
           next();
-        } catch (error) {         
+        } catch (error) {
           return res.status(401).json({ msg: "Unauthorized Token" });
         }
       }

@@ -26,6 +26,14 @@ export interface IMemoryAuthor {
   photoUrl: string;
   email: string;
 }
+
+export interface ILikeAuthor {
+  userId: string;
+  displayName: string;
+  photoUrl: string;
+  email: string;
+}
+
 export interface IComment {
   userId: string;
   displayName: string;
@@ -42,6 +50,7 @@ export interface IMemory {
   memoryPhotoUrl: string;
   memoryTitle: string;
   memoryMessage: string;
+  like: ILikeAuthor[];
 }
 
 export interface IMemoryPost {
