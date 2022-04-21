@@ -52,12 +52,18 @@ const POST_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.POST_MEMORY = POST_MEMORY;
 const GET_MEMORIES = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { page } = req.query;
+    const { page, limit } = req.query;
     try {
         const memories = yield memory_1.default.find()
             .sort({ createdAt: -1 })
-            .skip(parseInt(page) * 10)
-            .limit(5);
+            .skip(parseInt(page) * parseInt(limit))
+            .limit(parseInt(limit));
+        const memoriesTest = yield memory_1.default.find()
+            .sort({ createdAt: -1 })
+            .skip(parseInt(page) * parseInt(limit));
+        console.log(memoriesTest.length);
+        if (memories.length <= 0)
+            return res.status(404).json({ msg: "There is no more memories!" });
         return res.json({ msg: "Memories Fetched!", payload: memories });
     }
     catch (error) {

@@ -48,12 +48,21 @@ export const POST_MEMORY = async (req: Request, res: Response) => {
 };
 
 export const GET_MEMORIES = async (req: Request, res: Response) => {
-  const { page } = req.query;
+  const { page, limit } = req.query;
+
   try {
     const memories: IMemory[] = await Memory.find()
       .sort({ createdAt: -1 })
-      .skip(parseInt(page as string) * 10)
-      .limit(5);
+      .skip(parseInt(page as string) * parseInt(limit as string))
+      .limit(parseInt(limit as string));
+    const memoriesTest: IMemory[] = await Memory.find()
+      .sort({ createdAt: -1 })
+      .skip(parseInt(page as string) * parseInt(limit as string));
+
+ 
+
+    if (memories.length <= 0)
+      return res.status(404).json({ msg: "There is no more memories!" });
 
     return res.json({ msg: "Memories Fetched!", payload: memories });
   } catch (error) {
