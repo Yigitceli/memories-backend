@@ -43,6 +43,7 @@ export interface IComment {
 }
 
 export interface IMemory {
+  _id?: string;
   author: IMemoryAuthor;
   createdAt?: Date;
   tags: string[];

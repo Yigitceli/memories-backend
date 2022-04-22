@@ -118,7 +118,6 @@ exports.REGISTER = REGISTER;
 const REFRESH_TOKEN = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { refreshToken } = req.body;
     const authType = req.headers.authtype;
-    const accessToken = req.headers.authorization;
     if (!refreshToken)
         return res.status(401).json({ msg: "Missing Token!" });
     try {

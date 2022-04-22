@@ -14,4 +14,5 @@ const memorySchema = new Schema({
 memorySchema.set("timestamps", true);
 
 const Memory = model<IMemory>("Memory", memorySchema);
+
 export default Memory;

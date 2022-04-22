@@ -12,7 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GET_MEMORIES = exports.POST_MEMORY = void 0;
+exports.COMMENT = exports.GET_MEMORY = exports.GET_MEMORIES = exports.POST_MEMORY = void 0;
+const mongoose_1 = require("mongoose");
 const memory_1 = __importDefault(require("../models/memory"));
 const POST_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
@@ -58,10 +59,6 @@ const GET_MEMORIES = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             .sort({ createdAt: -1 })
             .skip(parseInt(page) * parseInt(limit))
             .limit(parseInt(limit));
-        const memoriesTest = yield memory_1.default.find()
-            .sort({ createdAt: -1 })
-            .skip(parseInt(page) * parseInt(limit));
-        console.log(memoriesTest.length);
         if (memories.length <= 0)
             return res.status(404).json({ msg: "There is no more memories!" });
         return res.json({ msg: "Memories Fetched!", payload: memories });
@@ -71,3 +68,53 @@ const GET_MEMORIES = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.GET_MEMORIES = GET_MEMORIES;
+const GET_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const memoryAggregate = yield memory_1.default.aggregate([
+            { $match: { _id: new mongoose_1.Types.ObjectId(id) } },
+            {
+                $addFields: {
+                    comments: { $reverseArray: "$comments" },
+                },
+            },
+        ]);
+        if (memoryAggregate.length > 0) {
+            const memory = memoryAggregate[0];
+            return res
+                .status(200)
+                .json({ msg: "Memory Successfully found!", payload: memory });
+        }
+        else {
+            return res.status(404).json({ msg: "Memory can't be found!" });
+        }
+    }
+    catch (error) {
+        return res.status(500).json({ msg: "Something gone wrong!" });
+    }
+});
+exports.GET_MEMORY = GET_MEMORY;
+const COMMENT = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { comment } = req.body;
+    const user = req.user;
+    try {
+        const commentData = {
+            comment,
+            displayName: user === null || user === void 0 ? void 0 : user.displayName,
+            email: user === null || user === void 0 ? void 0 : user.email,
+            photoUrl: user === null || user === void 0 ? void 0 : user.photoUrl,
+            userId: user === null || user === void 0 ? void 0 : user.userId,
+        };
+        const memory = yield memory_1.default.findByIdAndUpdate(id, {
+            $push: {
+                comments: commentData,
+            },
+        });
+        return res.status(200).json({ msg: "Comment send!" });
+    }
+    catch (error) {
+        return res.status(500).json({ msg: "Something gone wrong!" });
+    }
+});
+exports.COMMENT = COMMENT;

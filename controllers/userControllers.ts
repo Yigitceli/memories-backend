@@ -103,7 +103,6 @@ export const REGISTER = async (req: Request, res: Response) => {
 export const REFRESH_TOKEN = async (req: Request, res: Response) => {
   const { refreshToken } = req.body;
   const authType = req.headers.authtype;
-  const accessToken = req.headers.authorization;
 
   if (!refreshToken) return res.status(401).json({ msg: "Missing Token!" });
   try {
