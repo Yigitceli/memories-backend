@@ -80,10 +80,16 @@ export const GET_MEMORY = async (req: Request, res: Response) => {
     ]);
 
     if (memoryAggregate.length > 0) {
-      const memory:IMemory = memoryAggregate[0];
+      const memory: IMemory = memoryAggregate[0];
+      const likeMemories = await Memory.find({
+        $and: [{ tags: { $all: memory.tags } }, { _id: { $ne: memory._id } }],
+      }).limit(3);    
       return res
         .status(200)
-        .json({ msg: "Memory Successfully found!", payload: memory });
+        .json({
+          msg: "Memory Successfully found!",
+          payload: { ...memory, likeMemories },
+        });
     } else {
       return res.status(404).json({ msg: "Memory can't be found!" });
     }

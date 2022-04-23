@@ -11,5 +11,6 @@ const memorySchema = new mongoose_1.Schema({
     like: { default: [], type: Array },
 });
 memorySchema.set("timestamps", true);
+memorySchema.index({ memoryTitle: "text" });
 const Memory = (0, mongoose_1.model)("Memory", memorySchema);
 exports.default = Memory;

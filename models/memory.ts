@@ -12,6 +12,7 @@ const memorySchema = new Schema({
 });
 
 memorySchema.set("timestamps", true);
+memorySchema.index({memoryTitle: "text"})
 
 const Memory = model<IMemory>("Memory", memorySchema);
 
