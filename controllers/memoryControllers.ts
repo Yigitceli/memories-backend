@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import Memory from "../models/memory";
-import { IComment, IMemory, IMemoryAuthor } from "../types";
+import { IComment, ILikeAuthor, IMemory, IMemoryAuthor } from "../types";
 
 export const POST_MEMORY = async (req: Request, res: Response) => {
   interface IMemoryPost {
@@ -83,13 +83,11 @@ export const GET_MEMORY = async (req: Request, res: Response) => {
       const memory: IMemory = memoryAggregate[0];
       const likeMemories = await Memory.find({
         $and: [{ tags: { $all: memory.tags } }, { _id: { $ne: memory._id } }],
-      }).limit(3);    
-      return res
-        .status(200)
-        .json({
-          msg: "Memory Successfully found!",
-          payload: { ...memory, likeMemories },
-        });
+      }).limit(3);
+      return res.status(200).json({
+        msg: "Memory Successfully found!",
+        payload: { ...memory, likeMemories },
+      });
     } else {
       return res.status(404).json({ msg: "Memory can't be found!" });
     }
@@ -118,6 +116,69 @@ export const COMMENT = async (req: Request, res: Response) => {
 
     return res.status(200).json({ msg: "Comment send!" });
   } catch (error) {
+    return res.status(500).json({ msg: "Something gone wrong!" });
+  }
+};
+
+export const DELETE_MEMORY = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = req.user;
+  try {
+    const memory = await Memory.findOne({ _id: id });
+    const author: { userId: string } = memory?.author as { userId: string };
+    if (!memory)
+      return res.status(404).json({ msg: "Memory with this id is not exist!" });
+    if (memory.author.userId !== user.userId) {
+      return res.status(406).json({ msg: "UserId is not true!" });
+    }
+
+    await Memory.findByIdAndDelete(id);
+
+    return res.status(200).json({ msg: "Memory deleted." });
+  } catch (error) {
+    return res.status(500).json({ msg: "Something gone wrong!" });
+  }
+};
+
+export const LIKE = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user = req.user;
+  const likeUser: ILikeAuthor = {
+    userId: user.userId,
+    displayName: user.displayName,
+    email: user.email,
+    photoUrl: user.photoUrl,
+  };
+
+  try {
+    const memory = await Memory.findOne({ _id: id });
+    if (!memory)
+      return res.status(404).json({ msg: "Memory with this id is not exist!" });
+    if (
+      memory.like.find(
+        (author: ILikeAuthor) => author.userId == likeUser.userId
+      )
+    ) {
+      const newMemory = await Memory.findByIdAndUpdate(
+        id,
+        { $pull: { like: { userId: likeUser.userId } } },
+        { new: true }
+      );
+      return res
+        .status(200)
+        .json({ msg: "Memory unliked", payload: newMemory });
+    } else {
+      const newMemory = await Memory.findByIdAndUpdate(
+        id,
+        {
+          $push: { like: likeUser },
+        },
+        { new: true }
+      );
+      return res.status(200).json({ msg: "Memory liked", payload: newMemory });
+    }
+  } catch (error) {
+    console.log(error);
     return res.status(500).json({ msg: "Something gone wrong!" });
   }
 };

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const memorySchema = new mongoose_1.Schema({
-    author: { required: true, type: Map },
+    author: { required: true, type: Object },
     tags: Array,
     comments: Array,
     memoryPhotoUrl: String,

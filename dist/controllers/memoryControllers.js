@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.COMMENT = exports.GET_MEMORY = exports.GET_MEMORIES = exports.POST_MEMORY = void 0;
+exports.LIKE = exports.DELETE_MEMORY = exports.COMMENT = exports.GET_MEMORY = exports.GET_MEMORIES = exports.POST_MEMORY = void 0;
 const mongoose_1 = require("mongoose");
 const memory_1 = __importDefault(require("../models/memory"));
 const POST_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -84,9 +84,7 @@ const GET_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             const likeMemories = yield memory_1.default.find({
                 $and: [{ tags: { $all: memory.tags } }, { _id: { $ne: memory._id } }],
             }).limit(3);
-            return res
-                .status(200)
-                .json({
+            return res.status(200).json({
                 msg: "Memory Successfully found!",
                 payload: Object.assign(Object.assign({}, memory), { likeMemories }),
             });
@@ -124,3 +122,54 @@ const COMMENT = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.COMMENT = COMMENT;
+const DELETE_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const user = req.user;
+    try {
+        const memory = yield memory_1.default.findOne({ _id: id });
+        const author = memory === null || memory === void 0 ? void 0 : memory.author;
+        if (!memory)
+            return res.status(404).json({ msg: "Memory with this id is not exist!" });
+        if (memory.author.userId !== user.userId) {
+            return res.status(406).json({ msg: "UserId is not true!" });
+        }
+        yield memory_1.default.findByIdAndDelete(id);
+        return res.status(200).json({ msg: "Memory deleted." });
+    }
+    catch (error) {
+        return res.status(500).json({ msg: "Something gone wrong!" });
+    }
+});
+exports.DELETE_MEMORY = DELETE_MEMORY;
+const LIKE = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const user = req.user;
+    const likeUser = {
+        userId: user.userId,
+        displayName: user.displayName,
+        email: user.email,
+        photoUrl: user.photoUrl,
+    };
+    try {
+        const memory = yield memory_1.default.findOne({ _id: id });
+        if (!memory)
+            return res.status(404).json({ msg: "Memory with this id is not exist!" });
+        if (memory.like.find((author) => author.userId == likeUser.userId)) {
+            const newMemory = yield memory_1.default.findByIdAndUpdate(id, { $pull: { like: { userId: likeUser.userId } } }, { new: true });
+            return res
+                .status(200)
+                .json({ msg: "Memory unliked", payload: newMemory });
+        }
+        else {
+            const newMemory = yield memory_1.default.findByIdAndUpdate(id, {
+                $push: { like: likeUser },
+            }, { new: true });
+            return res.status(200).json({ msg: "Memory liked", payload: newMemory });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ msg: "Something gone wrong!" });
+    }
+});
+exports.LIKE = LIKE;

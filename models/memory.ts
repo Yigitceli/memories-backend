@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 import { IMemory } from "../types";
 
 const memorySchema = new Schema({
-  author: { required: true, type: Map },
+  author: { required: true, type: Object },
   tags: Array,
   comments: Array,
   memoryPhotoUrl: String,

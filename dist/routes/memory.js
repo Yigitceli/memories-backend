@@ -8,4 +8,6 @@ router.post("/", auth_1.AUTH, memoryControllers_1.POST_MEMORY);
 router.get("/", memoryControllers_1.GET_MEMORIES);
 router.get("/:id", memoryControllers_1.GET_MEMORY);
 router.post("/:id/comment", auth_1.AUTH, memoryControllers_1.COMMENT);
+router.put("/:id/like", auth_1.AUTH, memoryControllers_1.LIKE);
+router.delete("/:id", auth_1.AUTH, memoryControllers_1.DELETE_MEMORY);
 exports.default = router;
