@@ -49,19 +49,43 @@ export const POST_MEMORY = async (req: Request, res: Response) => {
 };
 
 export const GET_MEMORIES = async (req: Request, res: Response) => {
-  const { page, limit } = req.query;
+  const { page, limit, search } = req.query;
 
   try {
-    const memories: IMemory[] = await Memory.find()
-      .sort({ createdAt: -1 })
-      .skip(parseInt(page as string) * parseInt(limit as string))
-      .limit(parseInt(limit as string));
+    if (search) {
+      const searchValue: string = search as string;
+      let searchTags: string[] = [];
+      if (typeof search == "string") {
+        searchTags = search.split(" ") as string[];
+      } 
 
-    if (memories.length <= 0)
-      return res.status(404).json({ msg: "There is no more memories!" });
+      const memories: IMemory[] = await Memory.find({
+        $or: [
+          { $text: { $search: searchValue } },
+          { tags: { $in: searchTags } },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        .skip(parseInt(page as string) * parseInt(limit as string))
+        .limit(parseInt(limit as string));
 
-    return res.json({ msg: "Memories Fetched!", payload: memories });
+      if (memories.length <= 0)
+        return res.status(404).json({ msg: "There is no more memories!" });
+
+      return res.json({ msg: "Memories Fetched!", payload: memories });
+    } else {
+      const memories: IMemory[] = await Memory.find()
+        .sort({ createdAt: -1 })
+        .skip(parseInt(page as string) * parseInt(limit as string))
+        .limit(parseInt(limit as string));
+
+      if (memories.length <= 0)
+        return res.status(404).json({ msg: "There is no more memories!" });
+
+      return res.json({ msg: "Memories Fetched!", payload: memories });
+    }
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ msg: "Something gone wrong!" });
   }
 };

@@ -53,17 +53,39 @@ const POST_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.POST_MEMORY = POST_MEMORY;
 const GET_MEMORIES = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { page, limit } = req.query;
+    const { page, limit, search } = req.query;
     try {
-        const memories = yield memory_1.default.find()
-            .sort({ createdAt: -1 })
-            .skip(parseInt(page) * parseInt(limit))
-            .limit(parseInt(limit));
-        if (memories.length <= 0)
-            return res.status(404).json({ msg: "There is no more memories!" });
-        return res.json({ msg: "Memories Fetched!", payload: memories });
+        if (search) {
+            const searchValue = search;
+            let searchTags = [];
+            if (typeof search == "string") {
+                searchTags = search.split(" ");
+            }
+            const memories = yield memory_1.default.find({
+                $or: [
+                    { $text: { $search: searchValue } },
+                    { tags: { $in: searchTags } },
+                ],
+            })
+                .sort({ createdAt: -1 })
+                .skip(parseInt(page) * parseInt(limit))
+                .limit(parseInt(limit));
+            if (memories.length <= 0)
+                return res.status(404).json({ msg: "There is no more memories!" });
+            return res.json({ msg: "Memories Fetched!", payload: memories });
+        }
+        else {
+            const memories = yield memory_1.default.find()
+                .sort({ createdAt: -1 })
+                .skip(parseInt(page) * parseInt(limit))
+                .limit(parseInt(limit));
+            if (memories.length <= 0)
+                return res.status(404).json({ msg: "There is no more memories!" });
+            return res.json({ msg: "Memories Fetched!", payload: memories });
+        }
     }
     catch (error) {
+        console.log(error);
         return res.status(500).json({ msg: "Something gone wrong!" });
     }
 });

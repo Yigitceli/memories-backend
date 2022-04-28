@@ -3,7 +3,7 @@ import { IMemory } from "../types";
 
 const memorySchema = new Schema({
   author: { required: true, type: Object },
-  tags: Array,
+  tags: { type: Array, index: true },
   comments: Array,
   memoryPhotoUrl: String,
   memoryTitle: String,
@@ -12,7 +12,7 @@ const memorySchema = new Schema({
 });
 
 memorySchema.set("timestamps", true);
-memorySchema.index({memoryTitle: "text"})
+memorySchema.index({ memoryTitle: "text" });
 
 const Memory = model<IMemory>("Memory", memorySchema);
 
