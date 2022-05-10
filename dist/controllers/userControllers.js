@@ -159,9 +159,7 @@ const PROFIL_PHOTO = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         if (!photoUrl)
             return res.status(400).json({ msg: "Photo not found!" });
-        console.log(photoUrl);
         const newUser = yield user_1.User.findOneAndUpdate({ userId: user.userId }, { photoUrl: photoUrl });
-        console.log(newUser);
         return res.status(200).json({ msg: "Photo updated!", payload: newUser });
     }
     catch (error) {

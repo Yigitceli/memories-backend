@@ -144,12 +144,12 @@ export const PROFIL_PHOTO = async (req: Request, res: Response) => {
   const { photoUrl } = req.body;
   try {
     if (!photoUrl) return res.status(400).json({ msg: "Photo not found!" });
-    console.log(photoUrl);
+
     const newUser = await User.findOneAndUpdate(
       { userId: user.userId },
       { photoUrl: photoUrl }
     );
-    console.log(newUser);
+
     return res.status(200).json({ msg: "Photo updated!", payload: newUser });
   } catch (error) {
     return res.status(500).json({ msg: "Something gone wrong!" });
