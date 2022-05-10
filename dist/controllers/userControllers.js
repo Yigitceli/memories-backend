@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.REFRESH_TOKEN = exports.REGISTER = exports.LOGIN = void 0;
+exports.PROFIL_PHOTO = exports.REFRESH_TOKEN = exports.REGISTER = exports.LOGIN = void 0;
 const user_1 = require("../models/user");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const uid_1 = require("uid");
@@ -153,3 +153,19 @@ const REFRESH_TOKEN = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.REFRESH_TOKEN = REFRESH_TOKEN;
+const PROFIL_PHOTO = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { photoUrl } = req.body;
+    try {
+        if (!photoUrl)
+            return res.status(400).json({ msg: "Photo not found!" });
+        console.log(photoUrl);
+        const newUser = yield user_1.User.findOneAndUpdate({ userId: user.userId }, { photoUrl: photoUrl });
+        console.log(newUser);
+        return res.status(200).json({ msg: "Photo updated!", payload: newUser });
+    }
+    catch (error) {
+        return res.status(500).json({ msg: "Something gone wrong!" });
+    }
+});
+exports.PROFIL_PHOTO = PROFIL_PHOTO;
