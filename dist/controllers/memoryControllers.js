@@ -104,7 +104,7 @@ const GET_MEMORY = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (memoryAggregate.length > 0) {
             const memory = memoryAggregate[0];
             const likeMemories = yield memory_1.default.find({
-                $and: [{ tags: { $all: memory.tags } }, { _id: { $ne: memory._id } }],
+                $and: [{ tags: { $in: memory.tags } }, { _id: { $ne: memory._id } }],
             }).limit(3);
             return res.status(200).json({
                 msg: "Memory Successfully found!",

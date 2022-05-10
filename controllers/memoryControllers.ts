@@ -106,7 +106,7 @@ export const GET_MEMORY = async (req: Request, res: Response) => {
     if (memoryAggregate.length > 0) {
       const memory: IMemory = memoryAggregate[0];
       const likeMemories = await Memory.find({
-        $and: [{ tags: { $all: memory.tags } }, { _id: { $ne: memory._id } }],
+        $and: [{ tags: { $in: memory.tags } }, { _id: { $ne: memory._id } }],
       }).limit(3);
       return res.status(200).json({
         msg: "Memory Successfully found!",
